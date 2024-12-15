@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Heading } from "@chakra-ui/react";
+import { Heading, List, ListItem } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { EventDetails } from "./EventDetails";
 
@@ -16,14 +16,14 @@ export const EventsList = () => {
   return (
     <>
       <Heading>List of events</Heading>
-      <ul>
+      <List>
         {eventsList.map((event) => (
-          <li key={event.id}>
+          <ListItem key={event.id}>
             {" "}
             <EventDetails event={event} />{" "}
-          </li>
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </>
   );
 };
