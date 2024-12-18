@@ -18,7 +18,7 @@ export const CreateEvent = () => {
     startTime: "",
     endTime: "",
     categoryIds: [],
-    image: "", // Added for image URL
+    image: "",
   });
 
   const handleChange = (e) => {
@@ -34,7 +34,7 @@ export const CreateEvent = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to create event: ${response.statusText}`);
+        throw new Error(`Failed to create event: ${response.status}`);
       }
 
       const newEvent = await response.json();
