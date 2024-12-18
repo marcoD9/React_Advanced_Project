@@ -22,7 +22,20 @@ export const CreateEvent = () => {
   });
 
   const handleChange = (e) => {
-    setEventData(e.target);
+    const { name, value } = e.target;
+
+    // Number conversion for categoryIds
+    if (name === "categoryIds") {
+      setEventData((prevData) => ({
+        ...prevData,
+        [name]: [Number(value)],
+      }));
+    } else {
+      setEventData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const createEvent = async () => {
@@ -122,7 +135,7 @@ export const CreateEvent = () => {
             name="image"
             value={eventData.image}
             onChange={handleChange}
-            placeholder="Enter the URL of your event image or upload a file"
+            placeholder="Enter the URL of your event image"
           />
         </div>
       </FormControl>
