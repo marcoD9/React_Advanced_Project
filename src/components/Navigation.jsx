@@ -9,7 +9,7 @@ export const Navigation = () => {
           <Link to="/">Events</Link>
         </li>
         <li>
-          <Link to="/event/1">Event</Link>
+          <Link to="/events/new">Create new Event</Link>
         </li>
       </ul>
     </nav>
