@@ -3,7 +3,8 @@ import {
   Heading,
   Image,
   Card,
-  Box,
+  List,
+  ListItem,
   Select,
   Stack,
   Text,
@@ -14,12 +15,15 @@ import { useEffect, useState } from "react";
 import { useLoaderData, Link } from "react-router-dom";
 
 export const loader = async () => {
-  const events = await fetch("http://localhost:3000/events");
-  return { events: await events.json() };
+  const responseCategories = await fetch(`http://localhost:3000/categories`);
+  const responseEvents = await fetch("http://localhost:3000/events");
+  const categories = await responseCategories.json();
+  const events = await responseEvents.json();
+  return { events, categories };
 };
 
 export const EventsPage = () => {
-  const { events } = useLoaderData();
+  const { events, categories } = useLoaderData();
   const [searchField, setSearchField] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredEvents, setFilteredEvents] = useState([]); // Combined filtered events
@@ -51,6 +55,13 @@ export const EventsPage = () => {
   // Handle change in the category select
   const handleCategoryChange = (event) => {
     setSelectedCategory(Number(event.target.value));
+  };
+
+  //Check matching Ids between event's categoryIds and categories ids and return name
+  const findMatchingCategoryNames = (eventIds) => {
+    return categories
+      .filter((category) => eventIds.includes(category.id))
+      .map((category) => category.name);
   };
 
   return (
@@ -88,10 +99,29 @@ export const EventsPage = () => {
               <Card key={event.id}>
                 <CardBody m={16}>
                   <div className="event">
-                    <Link to={`event/${event.id}`}>
+                    <Link to={`/event/${event.id}`}>
                       <Image src={event.image} alt={event.title} />
                       <Heading>{event.title}</Heading>
+                      <Text>{event.description}</Text>
                     </Link>
+                    <Text>Location: {event.location}</Text>
+                    <Text>
+                      From: {event.startTime} To: {event.endTime}
+                    </Text>
+                    {categories.length > 0 && (
+                      <>
+                        <Text>Categories: </Text>
+                        <List key={event.id}>
+                          {findMatchingCategoryNames(event.categoryIds).map(
+                            (categoryName) => (
+                              <ListItem key={categoryName}>
+                                {categoryName}
+                              </ListItem>
+                            )
+                          )}
+                        </List>
+                      </>
+                    )}
                   </div>
                 </CardBody>
               </Card>
