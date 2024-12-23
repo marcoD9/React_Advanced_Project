@@ -5,11 +5,13 @@ import {
   Input,
   Select,
   Textarea,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export const CreateEvent = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const [eventData, setEventData] = useState({
     title: "",
@@ -39,26 +41,42 @@ export const CreateEvent = () => {
   };
 
   const createEvent = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/events", {
-        method: "POST",
-        body: JSON.stringify(eventData),
-        headers: { "Content-Type": "application/json;charset=utf-8" },
-      });
+    const promise = fetch("http://localhost:3000/events", {
+      method: "POST",
+      body: JSON.stringify(eventData),
+      headers: { "Content-Type": "application/json;charset=utf-8" },
+    });
 
-      if (!response.ok) {
-        throw new Error(`Failed to create event: ${response.status}`);
-      }
+    toast.promise(promise, {
+      loading: {
+        title: "Saving changes...",
+        description: "Please wait while we create the event",
+      },
+      success: {
+        title: "Event created",
+        description: "The event has been successfully created",
+      },
+      error: {
+        title: "Error creating event",
+        description: "Something went wrong, please try again",
+      },
+    });
 
+    const response = await promise;
+
+    if (response.ok) {
       const newEvent = await response.json();
-      navigate(`/events/${newEvent.id}`);
-    } catch (error) {
-      console.error("Error creating event:", error);
+      navigate(`/event/${newEvent.id}`);
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await createEvent();
+  };
+
   return (
-    <form onSubmit={createEvent}>
+    <form onSubmit={handleSubmit}>
       <FormControl>
         <FormLabel htmlFor="title">Event Title</FormLabel>
         <Input
