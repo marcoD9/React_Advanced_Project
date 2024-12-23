@@ -6,7 +6,7 @@ import { EventsPage, loader as eventsPageLoader } from "./pages/EventsPage";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Root } from "./components/Root";
 import { CreateEvent } from "./pages/CreateEvent";
-
+import { EditEvent, loader as editEventLoader } from "./pages/EditEvent";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -22,6 +22,11 @@ const router = createBrowserRouter([
         element: <EventPage />,
         loader: eventPageLoader,
         // action: addComment,
+      },
+      {
+        path: "/edit/:eventId",
+        element: <EditEvent />,
+        loader: editEventLoader,
       },
       {
         path: "/events/new",
