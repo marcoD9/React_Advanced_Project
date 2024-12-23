@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLoaderData, Link } from "react-router-dom";
+import { format, parseISO } from "date-fns";
 
 export const loader = async () => {
   const responseCategories = await fetch(`http://localhost:3000/categories`);
@@ -105,9 +106,14 @@ export const EventsPage = () => {
                       <Text>{event.description}</Text>
                     </Link>
                     <Text>Location: {event.location}</Text>
-                    <Text>
-                      From: {event.startTime} To: {event.endTime}
-                    </Text>
+                    {event.startTime && event.endTime ? (
+                      <Text>
+                        From: {format(parseISO(event.startTime), "PPPpp")} To:{" "}
+                        {format(parseISO(event.endTime), "PPPpp")}
+                      </Text>
+                    ) : (
+                      <Text>Loading...</Text>
+                    )}
                     {categories.length > 0 && (
                       <>
                         <Text>Categories: </Text>
