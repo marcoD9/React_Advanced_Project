@@ -3,13 +3,14 @@ import {
   Heading,
   Image,
   Card,
-  List,
-  ListItem,
+  Box,
   Select,
   Stack,
   Text,
   Flex,
   Input,
+  Tag,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLoaderData, Link } from "react-router-dom";
@@ -28,6 +29,12 @@ export const EventsPage = () => {
   const [searchField, setSearchField] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredEvents, setFilteredEvents] = useState([]); // Combined filtered events
+
+  //Using useBreakpointValue outside of the loop
+  const imageHeight = useBreakpointValue({ base: "200px", md: "300px" });
+  const imageWidth = useBreakpointValue({ base: "100%", md: "300px" });
+  const headingSize = useBreakpointValue({ base: "md", md: "lg" });
+  const textSize = useBreakpointValue({ base: "sm", md: "md" });
 
   // Filter based on search field
   useEffect(() => {
@@ -67,74 +74,125 @@ export const EventsPage = () => {
 
   return (
     <>
-      <Stack alignItems="center" textAlign="center">
-        <Flex flexDirection="column">
-          <Text fontWeight="bolder">Search events by name:</Text>
-          <Text fontWeight="light">{searchField}</Text>
-          <Input w="40vw" onChange={handleChange} />
-        </Flex>
-        <Flex flexDirection="column">
-          <Text>Category:</Text>
-          <Select
-            placeholder="Choose a category"
-            onChange={handleCategoryChange}
+      <Box
+        py={8}
+        bgGradient="linear(to-l,  #FAF5FF,#FFFAF0)"
+        borderRadius="lg"
+        overflow="hidden"
+      >
+        <Stack alignItems="center" textAlign="center" spacing={8}>
+          <Flex flexDirection="column" alignItems="center">
+            <Text fontWeight="bolder">Search events by name:</Text>
+            <Text fontWeight="light" mb={2}>
+              {searchField}
+            </Text>
+            <Input
+              w={{ base: "80vw", md: "40vw" }}
+              onChange={handleChange}
+              placeholder="Type event name..."
+            />
+          </Flex>
+          <Flex flexDirection="column" alignItems="center">
+            <Text fontWeight="bolder" mb={2}>
+              Category:
+            </Text>
+            <Select
+              placeholder="Choose a category"
+              onChange={handleCategoryChange}
+              w={{ base: "80vw", md: "40vw" }}
+            >
+              <option value="">All</option>
+              <option value="1">Sports</option>
+              <option value="2">Games</option>
+              <option value="3">Relaxation</option>
+            </Select>
+          </Flex>
+        </Stack>
+        <Stack alignItems="center" mt={12}>
+          <Heading textAlign="center" mb={6}>
+            List of events
+          </Heading>
+          <Flex
+            flexDirection="row"
+            justifyContent="center"
+            gap={8}
+            wrap="wrap"
+            maxW="100%"
           >
-            <option value="">All</option>
-            <option value="1">Sports</option>
-            <option value="2">Games</option>
-            <option value="3">Relaxation</option>
-          </Select>
-        </Flex>
-      </Stack>
-      <Stack alignItems="center">
-        <Flex
-          maxH="max-content"
-          maxWidth="max-content"
-          justifyContent="center"
-          gap="8"
-          wrap="wrap"
-        >
-          <div className="events-list">
-            <Heading>List of events</Heading>
             {filteredEvents.map((event) => (
-              <Card key={event.id}>
-                <CardBody m={16}>
-                  <div className="event">
-                    <Link to={`/event/${event.id}`}>
-                      <Image src={event.image} alt={event.title} />
-                      <Heading>{event.title}</Heading>
-                      <Text>{event.description}</Text>
-                    </Link>
-                    <Text>Location: {event.location}</Text>
-                    {event.startTime && event.endTime ? (
-                      <Text>
-                        From: {format(parseISO(event.startTime), "PPPpp")} To:{" "}
-                        {format(parseISO(event.endTime), "PPPpp")}
-                      </Text>
-                    ) : (
-                      <Text>Loading...</Text>
-                    )}
-                    {categories.length > 0 && (
-                      <>
-                        <Text>Categories: </Text>
-                        <List key={event.id}>
-                          {findMatchingCategoryNames(event.categoryIds).map(
-                            (categoryName) => (
-                              <ListItem key={categoryName}>
-                                {categoryName}
-                              </ListItem>
-                            )
-                          )}
-                        </List>
-                      </>
-                    )}
-                  </div>
-                </CardBody>
+              <Card
+                boxShadow="2xl"
+                bgGradient="linear(to-l,#E9D8FD,#B794F4)"
+                w={{ base: "90vw", md: "60vw" }}
+                key={event.title}
+                cursor="pointer"
+                _hover={{ transform: "scale(1.09)" }}
+              >
+                {" "}
+                <Link to={`/event/${event.id}`}>
+                  <CardBody>
+                    <Flex
+                      flexDirection={{ base: "column", md: "row" }}
+                      gap={6}
+                      alignItems="center"
+                    >
+                      <Image
+                        borderRadius="lg"
+                        h={imageHeight}
+                        w={imageWidth}
+                        objectFit="cover"
+                        src={event.image}
+                        alt={event.title}
+                      />
+
+                      <Stack spacing={4} flex="1">
+                        <Heading size={headingSize}>{event.title}</Heading>
+                        <Text fontSize={textSize}>{event.description}</Text>
+                        <Text>Location: {event.location}</Text>
+                        {event.startTime && event.endTime ? (
+                          <>
+                            <Text>
+                              From: {format(parseISO(event.startTime), "PPPpp")}
+                            </Text>
+                            <Text>
+                              To: {format(parseISO(event.endTime), "PPPpp")}
+                            </Text>
+                          </>
+                        ) : (
+                          <Text>Loading...</Text>
+                        )}
+                        {categories.length > 0 && (
+                          <>
+                            <Text>Categories:</Text>
+                            <Flex flexDirection="row" wrap="wrap" gap={2}>
+                              {findMatchingCategoryNames(event.categoryIds).map(
+                                (categoryName) => (
+                                  <Tag
+                                    fontSize="l"
+                                    p={2}
+                                    size="sm"
+                                    variant="solid"
+                                    bgColor="yellow.300"
+                                    color="black"
+                                    key={categoryName}
+                                  >
+                                    {categoryName[0].toUpperCase() +
+                                      categoryName.slice(1).toLowerCase()}
+                                  </Tag>
+                                )
+                              )}
+                            </Flex>
+                          </>
+                        )}
+                      </Stack>
+                    </Flex>
+                  </CardBody>
+                </Link>
               </Card>
             ))}
-          </div>
-        </Flex>
-      </Stack>
+          </Flex>
+        </Stack>
+      </Box>
     </>
   );
 };

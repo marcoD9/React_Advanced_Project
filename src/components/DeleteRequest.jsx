@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  Flex,
 } from "@chakra-ui/react";
 
 export const DeleteRequest = ({ eventId }) => {
@@ -49,10 +50,11 @@ export const DeleteRequest = ({ eventId }) => {
 
   return (
     <>
-      <Button w="10%" colorScheme="red" onClick={onOpen}>
-        Delete
-      </Button>
-
+      <Flex gap={4}>
+        <Button colorScheme="red" onClick={onOpen}>
+          Delete
+        </Button>
+      </Flex>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>

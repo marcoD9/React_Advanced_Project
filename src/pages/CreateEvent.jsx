@@ -6,6 +6,9 @@ import {
   Select,
   Textarea,
   useToast,
+  VStack,
+  Box,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -76,88 +79,96 @@ export const CreateEvent = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormControl>
-        <FormLabel htmlFor="title">Event Title</FormLabel>
-        <Input
-          type="text"
-          id="title"
-          name="title"
-          value={eventData.title}
-          onChange={handleChange}
-          required
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="description">Event Description</FormLabel>
-        <Textarea
-          id="description"
-          name="description"
-          value={eventData.description}
-          onChange={handleChange}
-          required
-          minH={8}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="startTime">Start Time</FormLabel>
-        <Input
-          type="datetime-local"
-          id="startTime"
-          name="startTime"
-          value={eventData.startTime}
-          onChange={handleChange}
-          required
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="endTime">End Time</FormLabel>
-        <Input
-          type="datetime-local"
-          id="endTime"
-          name="endTime"
-          value={eventData.endTime}
-          onChange={handleChange}
-          required
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="location">Location</FormLabel>
-        <Input
-          type="text"
-          id="location"
-          name="location"
-          value={eventData.location}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="categoryIds">Event Type</FormLabel>
-        <Select
-          id="categoryIds"
-          name="categoryIds"
-          value={eventData.categoryIds}
-          onChange={handleChange}
-        >
-          <option value="1">Sports</option>
-          <option value="2">Games</option>
-          <option value="3">Relaxation</option>
-        </Select>
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor="imageUrl">Event Image</FormLabel>
-        <div>
-          <Input
-            type="text"
-            id="image"
-            name="image"
-            value={eventData.image}
-            onChange={handleChange}
-            placeholder="Enter the URL of your event image"
-          />
-        </div>
-      </FormControl>
-      <Button type="submit">Create Event</Button>
-    </form>
+    <Box p={8} maxW="800px" mx="auto">
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={6} align="stretch">
+          <FormControl>
+            <FormLabel htmlFor="title">Title</FormLabel>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={eventData.title}
+              onChange={handleChange}
+              required
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="description">Description</FormLabel>
+            <Textarea
+              id="description"
+              name="description"
+              value={eventData.description}
+              onChange={handleChange}
+              required
+              minH={8}
+            />
+          </FormControl>
+          <SimpleGrid columns={[1, null, 2]} spacing={4}>
+            <FormControl>
+              <FormLabel htmlFor="startTime">Start Time</FormLabel>
+              <Input
+                type="datetime-local"
+                id="startTime"
+                name="startTime"
+                value={eventData.startTime}
+                onChange={handleChange}
+                required
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="endTime">End Time</FormLabel>
+              <Input
+                type="datetime-local"
+                id="endTime"
+                name="endTime"
+                value={eventData.endTime}
+                onChange={handleChange}
+                required
+              />
+            </FormControl>
+          </SimpleGrid>
+          <FormControl>
+            <FormLabel htmlFor="location">Location</FormLabel>
+            <Input
+              type="text"
+              id="location"
+              name="location"
+              value={eventData.location}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="categoryIds">Type</FormLabel>
+            <Select
+              id="categoryIds"
+              name="categoryIds"
+              value={eventData.categoryIds}
+              onChange={handleChange}
+            >
+              <option value="1">Sports</option>
+              <option value="2">Games</option>
+              <option value="3">Relaxation</option>
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="imageUrl">Image</FormLabel>
+            <div>
+              <Input
+                type="text"
+                id="image"
+                name="image"
+                value={eventData.image}
+                onChange={handleChange}
+                placeholder="Enter the URL of your event image"
+              />
+            </div>
+          </FormControl>
+          <Button colorScheme="blue" type="submit" w="full">
+            Create Event
+          </Button>
+        </VStack>
+      </form>
+    </Box>
   );
 };
