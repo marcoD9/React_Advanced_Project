@@ -88,11 +88,6 @@ export const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (eventData.categoryIds.length === 0) {
-      // Mostra un messaggio di errore specifico per le categorie
-      alert("Devi selezionare almeno una categoria");
-      return;
-    }
     // Check for errors using error variables
     if (
       titleError ||
