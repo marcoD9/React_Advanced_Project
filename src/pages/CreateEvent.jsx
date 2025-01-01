@@ -3,12 +3,13 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
   Textarea,
-  useToast,
+  Checkbox,
   VStack,
   Box,
+  Image,
   SimpleGrid,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -26,21 +27,23 @@ export const CreateEvent = () => {
     image: "",
   });
 
+  // Function to handle checkboxes
+  const handleCategoryChange = (categoryId) => {
+    setEventData((prevData) => {
+      const { categoryIds } = prevData;
+      const updatedCategoryIds = categoryIds.includes(categoryId)
+        ? categoryIds.filter((id) => id !== categoryId) // Remove category if it is already there
+        : [...categoryIds, categoryId]; // Add category if it's not
+      return { ...prevData, categoryIds: updatedCategoryIds };
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Number conversion for categoryIds
-    if (name === "categoryIds") {
-      setEventData((prevData) => ({
-        ...prevData,
-        [name]: [Number(value)],
-      }));
-    } else {
-      setEventData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    setEventData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const createEvent = async () => {
@@ -139,30 +142,55 @@ export const CreateEvent = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="categoryIds">Type</FormLabel>
-            <Select
-              id="categoryIds"
-              name="categoryIds"
-              value={eventData.categoryIds}
-              onChange={handleChange}
-            >
-              <option value="1">Sports</option>
-              <option value="2">Games</option>
-              <option value="3">Relaxation</option>
-            </Select>
+            <FormLabel>Categories</FormLabel>
+            <VStack align="start">
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(1)}
+                onChange={() => handleCategoryChange(1)}
+              >
+                Sports
+              </Checkbox>
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(2)}
+                onChange={() => handleCategoryChange(2)}
+              >
+                Games
+              </Checkbox>
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(3)}
+                onChange={() => handleCategoryChange(3)}
+              >
+                Relaxation
+              </Checkbox>
+            </VStack>
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="imageUrl">Image</FormLabel>
-            <div>
-              <Input
-                type="text"
-                id="image"
-                name="image"
-                value={eventData.image}
-                onChange={handleChange}
-                placeholder="Enter the URL of your event image"
-              />
-            </div>
+            <FormLabel htmlFor="image">Image</FormLabel>
+            <Input
+              type="text"
+              id="image"
+              name="image"
+              value={eventData.image}
+              onChange={handleChange}
+              placeholder="Enter the URL of your event image"
+            />
+            {eventData.image && (
+              <Box
+                mt={4}
+                borderWidth="1px"
+                borderRadius="md"
+                overflow="hidden"
+                width="150px"
+              >
+                <Image
+                  src={eventData.image}
+                  alt="Event Preview"
+                  objectFit="cover"
+                  width="150px"
+                  height="100px"
+                />
+              </Box>
+            )}
           </FormControl>
           <Button colorScheme="blue" type="submit" w="full">
             Create Event

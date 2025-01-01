@@ -4,13 +4,13 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
   Textarea,
-  useToast,
+  Checkbox,
   VStack,
   Text,
   Image,
   SimpleGrid,
+  useToast,
 } from "@chakra-ui/react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -29,28 +29,32 @@ export const loader = async ({ params }) => {
     console.error("Error fetching event:", error);
   }
 };
+
 export const EditEvent = () => {
   const { event } = useLoaderData();
-  const [eventData, setEventData] = useState({ event });
+  const [eventData, setEventData] = useState({ ...event });
   const toast = useToast();
   const navigate = useNavigate();
 
-  //-------------------------------------------//
+  // Handle checkboxes
+  const handleCategoryChange = (categoryId) => {
+    setEventData((prevData) => {
+      const { categoryIds } = prevData;
+      const updatedCategoryIds = categoryIds.includes(categoryId)
+        ? categoryIds.filter((id) => id !== categoryId)
+        : [...categoryIds, categoryId];
+      return { ...prevData, categoryIds: updatedCategoryIds };
+    });
+  };
+
+  // Handle input
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "categoryIds") {
-      setEventData((prevData) => ({
-        ...prevData,
-        [name]: [Number(value)],
-      }));
-    } else {
-      setEventData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    setEventData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
-  //-------------------------------------------//
 
   const editEvent = async () => {
     const promise = fetch(`http://localhost:3000/events/${event.id}`, {
@@ -111,7 +115,6 @@ export const EditEvent = () => {
             <FormLabel htmlFor="description">
               Description:{" "}
               <Text as="span" fontWeight="thin" fontSize="md">
-                {" "}
                 {event.description}
               </Text>
             </FormLabel>
@@ -143,9 +146,8 @@ export const EditEvent = () => {
 
             <FormControl>
               <FormLabel htmlFor="endTime">
-                End Time:
+                End Time:{" "}
                 <Text as="span" fontWeight="thin" fontSize="md">
-                  {" "}
                   {format(parseISO(event.endTime), "PPPpp")}
                 </Text>
               </FormLabel>
@@ -160,48 +162,29 @@ export const EditEvent = () => {
           </SimpleGrid>
 
           <FormControl>
-            <FormLabel htmlFor="location">
-              Location:
-              <Text as="span" fontWeight="thin" fontSize="md">
-                {" "}
-                {event.location}
-              </Text>
-            </FormLabel>
-            <Input
-              placeholder="Edit location"
-              type="text"
-              id="location"
-              name="location"
-              value={eventData.location}
-              onChange={handleChange}
-            />
+            <FormLabel>Categories</FormLabel>
+            <VStack align="start" spacing={1}>
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(1)}
+                onChange={() => handleCategoryChange(1)}
+              >
+                Sports
+              </Checkbox>
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(2)}
+                onChange={() => handleCategoryChange(2)}
+              >
+                Games
+              </Checkbox>
+              <Checkbox
+                isChecked={eventData.categoryIds.includes(3)}
+                onChange={() => handleCategoryChange(3)}
+              >
+                Relaxation
+              </Checkbox>
+            </VStack>
           </FormControl>
 
-          <FormControl>
-            <FormLabel htmlFor="categoryIds">
-              Type:
-              <VStack align="start" spacing={1}>
-                {event.categoryIds.map((id) => (
-                  <Text as="span" key={id} fontWeight="thin" fontSize="md">
-                    {id === 1 && "Sports"}
-                    {id === 2 && "Games"}
-                    {id === 3 && "Relaxation"}
-                  </Text>
-                ))}
-              </VStack>
-            </FormLabel>
-            <Select
-              id="categoryIds"
-              name="categoryIds"
-              value={eventData.categoryIds}
-              onChange={handleChange}
-              placeholder="Select Category"
-            >
-              <option value="1">Sports</option>
-              <option value="2">Games</option>
-              <option value="3">Relaxation</option>
-            </Select>
-          </FormControl>
           <FormControl>
             <FormLabel htmlFor="image">Image</FormLabel>
             <Input
