@@ -8,6 +8,8 @@ import {
   VStack,
   Box,
   Image,
+  FormHelperText,
+  FormErrorMessage,
   SimpleGrid,
   useToast,
 } from "@chakra-ui/react";
@@ -26,6 +28,14 @@ export const CreateEvent = () => {
     categoryIds: [],
     image: "",
   });
+
+  const titleError = !eventData.title;
+  const descriptionError = !eventData.description;
+  const locationError = !eventData.location;
+  const startTimeError = !eventData.startTime;
+  const endTimeError = !eventData.endTime;
+  const imageError = !eventData.image;
+  const categoryError = eventData.categoryIds.length === 0;
 
   // Function to handle checkboxes
   const handleCategoryChange = (categoryId) => {
@@ -78,6 +88,23 @@ export const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (eventData.categoryIds.length === 0) {
+      // Mostra un messaggio di errore specifico per le categorie
+      alert("Devi selezionare almeno una categoria");
+      return;
+    }
+    // Check for errors using error variables
+    if (
+      titleError ||
+      descriptionError ||
+      locationError ||
+      startTimeError ||
+      endTimeError ||
+      imageError ||
+      categoryError
+    ) {
+      return; // Prevent form submission if there are errors
+    }
     await createEvent();
   };
 
@@ -85,7 +112,7 @@ export const CreateEvent = () => {
     <Box p={8} maxW="800px" mx="auto">
       <form onSubmit={handleSubmit}>
         <VStack spacing={6} align="stretch">
-          <FormControl>
+          <FormControl isInvalid={titleError}>
             <FormLabel htmlFor="title">Title</FormLabel>
             <Input
               type="text"
@@ -93,22 +120,30 @@ export const CreateEvent = () => {
               name="title"
               value={eventData.title}
               onChange={handleChange}
-              required
             />
+            {!titleError ? (
+              <FormHelperText>Enter your event's title</FormHelperText>
+            ) : (
+              <FormErrorMessage>Title is required.</FormErrorMessage>
+            )}
           </FormControl>
-          <FormControl>
+          <FormControl isInvalid={descriptionError}>
             <FormLabel htmlFor="description">Description</FormLabel>
             <Textarea
               id="description"
               name="description"
               value={eventData.description}
               onChange={handleChange}
-              required
               minH={8}
             />
+            {!descriptionError ? (
+              <FormHelperText>Enter your event's description</FormHelperText>
+            ) : (
+              <FormErrorMessage>Description is required.</FormErrorMessage>
+            )}
           </FormControl>
           <SimpleGrid columns={[1, null, 2]} spacing={4}>
-            <FormControl>
+            <FormControl isInvalid={startTimeError}>
               <FormLabel htmlFor="startTime">Start Time</FormLabel>
               <Input
                 type="datetime-local"
@@ -116,10 +151,14 @@ export const CreateEvent = () => {
                 name="startTime"
                 value={eventData.startTime}
                 onChange={handleChange}
-                required
-              />
+              />{" "}
+              {!startTimeError ? (
+                <FormHelperText>Enter your event's start time</FormHelperText>
+              ) : (
+                <FormErrorMessage>Date is required.</FormErrorMessage>
+              )}
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={endTimeError}>
               <FormLabel htmlFor="endTime">End Time</FormLabel>
               <Input
                 type="datetime-local"
@@ -127,11 +166,15 @@ export const CreateEvent = () => {
                 name="endTime"
                 value={eventData.endTime}
                 onChange={handleChange}
-                required
               />
+              {!endTimeError ? (
+                <FormHelperText>Enter your event's end time</FormHelperText>
+              ) : (
+                <FormErrorMessage>Date is required.</FormErrorMessage>
+              )}
             </FormControl>
           </SimpleGrid>
-          <FormControl>
+          <FormControl isInvalid={locationError}>
             <FormLabel htmlFor="location">Location</FormLabel>
             <Input
               type="text"
@@ -140,8 +183,13 @@ export const CreateEvent = () => {
               value={eventData.location}
               onChange={handleChange}
             />
+            {!locationError ? (
+              <FormHelperText>Enter your event's location</FormHelperText>
+            ) : (
+              <FormErrorMessage>Location is required.</FormErrorMessage>
+            )}
           </FormControl>
-          <FormControl>
+          <FormControl isInvalid={categoryError}>
             <FormLabel>Categories</FormLabel>
             <VStack align="start">
               <Checkbox
@@ -163,8 +211,11 @@ export const CreateEvent = () => {
                 Relaxation
               </Checkbox>
             </VStack>
+            {categoryError && (
+              <FormErrorMessage>Choose one or more categories</FormErrorMessage>
+            )}
           </FormControl>
-          <FormControl>
+          <FormControl isInvalid={imageError}>
             <FormLabel htmlFor="image">Image</FormLabel>
             <Input
               type="text"
@@ -190,6 +241,11 @@ export const CreateEvent = () => {
                   height="100px"
                 />
               </Box>
+            )}
+            {!imageError ? (
+              <FormHelperText>Enter your event's image</FormHelperText>
+            ) : (
+              <FormErrorMessage>Image is required.</FormErrorMessage>
             )}
           </FormControl>
           <Button colorScheme="blue" type="submit" w="full">
