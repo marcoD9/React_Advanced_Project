@@ -8,10 +8,13 @@ import {
   Textarea,
   useToast,
   VStack,
+  Text,
+  Image,
   SimpleGrid,
 } from "@chakra-ui/react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { format, parseISO } from "date-fns";
 
 export const loader = async ({ params }) => {
   try {
@@ -88,7 +91,12 @@ export const EditEvent = () => {
       <form onSubmit={handleSubmit}>
         <VStack spacing={6} align="stretch">
           <FormControl>
-            <FormLabel htmlFor="title">Title</FormLabel>
+            <FormLabel htmlFor="title">
+              Title:{" "}
+              <Text as="span" fontWeight="thin" fontSize="md">
+                {event.title}
+              </Text>
+            </FormLabel>
             <Input
               placeholder="Edit title"
               type="text"
@@ -100,7 +108,13 @@ export const EditEvent = () => {
           </FormControl>
 
           <FormControl>
-            <FormLabel htmlFor="description">Description</FormLabel>
+            <FormLabel htmlFor="description">
+              Description:{" "}
+              <Text as="span" fontWeight="thin" fontSize="md">
+                {" "}
+                {event.description}
+              </Text>
+            </FormLabel>
             <Textarea
               placeholder="Edit description"
               id="description"
@@ -112,7 +126,12 @@ export const EditEvent = () => {
 
           <SimpleGrid columns={[1, null, 2]} spacing={4}>
             <FormControl>
-              <FormLabel htmlFor="startTime">Start Time</FormLabel>
+              <FormLabel htmlFor="startTime">
+                Start Time:{" "}
+                <Text as="span" fontWeight="thin" fontSize="md">
+                  {format(parseISO(event.startTime), "PPPpp")}
+                </Text>
+              </FormLabel>
               <Input
                 type="datetime-local"
                 id="startTime"
@@ -123,7 +142,13 @@ export const EditEvent = () => {
             </FormControl>
 
             <FormControl>
-              <FormLabel htmlFor="endTime">End Time</FormLabel>
+              <FormLabel htmlFor="endTime">
+                End Time:
+                <Text as="span" fontWeight="thin" fontSize="md">
+                  {" "}
+                  {format(parseISO(event.endTime), "PPPpp")}
+                </Text>
+              </FormLabel>
               <Input
                 type="datetime-local"
                 id="endTime"
@@ -135,7 +160,13 @@ export const EditEvent = () => {
           </SimpleGrid>
 
           <FormControl>
-            <FormLabel htmlFor="location">Location</FormLabel>
+            <FormLabel htmlFor="location">
+              Location:
+              <Text as="span" fontWeight="thin" fontSize="md">
+                {" "}
+                {event.location}
+              </Text>
+            </FormLabel>
             <Input
               placeholder="Edit location"
               type="text"
@@ -147,7 +178,18 @@ export const EditEvent = () => {
           </FormControl>
 
           <FormControl>
-            <FormLabel htmlFor="categoryIds">Type</FormLabel>
+            <FormLabel htmlFor="categoryIds">
+              Type:
+              <VStack align="start" spacing={1}>
+                {event.categoryIds.map((id) => (
+                  <Text as="span" key={id} fontWeight="thin" fontSize="md">
+                    {id === 1 && "Sports"}
+                    {id === 2 && "Games"}
+                    {id === 3 && "Relaxation"}
+                  </Text>
+                ))}
+              </VStack>
+            </FormLabel>
             <Select
               id="categoryIds"
               name="categoryIds"
@@ -160,7 +202,6 @@ export const EditEvent = () => {
               <option value="3">Relaxation</option>
             </Select>
           </FormControl>
-
           <FormControl>
             <FormLabel htmlFor="image">Image</FormLabel>
             <Input
@@ -171,8 +212,24 @@ export const EditEvent = () => {
               onChange={handleChange}
               placeholder="Enter the URL of your event image"
             />
+            {(event.image || eventData.image) && (
+              <Box
+                mt={4}
+                borderWidth="1px"
+                borderRadius="md"
+                overflow="hidden"
+                width="150px"
+              >
+                <Image
+                  src={eventData.image || event.image}
+                  alt="Event Preview"
+                  objectFit="cover"
+                  width="150px"
+                  height="100px"
+                />
+              </Box>
+            )}
           </FormControl>
-
           <Button colorScheme="blue" type="submit" w="full">
             Edit Event
           </Button>
