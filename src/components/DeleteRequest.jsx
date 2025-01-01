@@ -62,10 +62,10 @@ export const DeleteRequest = ({ eventId }) => {
           <ModalCloseButton />
           <ModalBody>Are you sure you want to delete this event?</ModalBody>
           <ModalFooter>
+            <Button onClick={onClose}>Cancel</Button>
             <Button mx={12} colorScheme="red" onClick={handleDelete}>
               Delete
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
