@@ -17,20 +17,37 @@ import { DeleteRequest } from "../components/DeleteRequest";
 
 export const loader = async ({ params }) => {
   //-------------------------------------------------------------------------------//
-  //Fetch categories datas based on the event's categoryIds
+  // Fetch categories data based on the event's categoryIds
   async function fetchCategories(ids) {
-    const promises = ids.map(async (id) => {
-      const response = await fetch(`http://localhost:3000/categories/${id}`);
-      return await response.json();
-    });
-    return await Promise.all(promises);
+    try {
+      const promises = ids.map(async (id) => {
+        const response = await fetch(`http://localhost:3000/categories/${id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch category with id: ${id}`);
+        }
+        return await response.json();
+      });
+      return await Promise.all(promises);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      throw error;
+    }
   }
   //-------------------------------------------------------------------------------//
-  //Fetch users datas based on the event's createdBy property
+  // Fetch user data based on the event's createdBy property
   async function fetchUsersId(id) {
-    const response = await fetch(`http://localhost:3000/users/${id}`);
-    return await response.json();
+    try {
+      const response = await fetch(`http://localhost:3000/users/${id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user with id: ${id}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      throw error;
+    }
   }
+
   //-------------------------------------------------------------------------------//
 
   try {
@@ -40,14 +57,11 @@ export const loader = async ({ params }) => {
     if (!response.ok) {
       throw new Error("Event not found");
     }
-
     const event = await response.json();
-
     const [categories] = await Promise.all([
       fetchCategories(event.categoryIds),
     ]);
     const user = event.createdBy ? await fetchUsersId(event.createdBy) : null; //Check if user exists before fetching
-
     return { event, user, categories };
   } catch (error) {
     console.error("Error fetching data:", error);
