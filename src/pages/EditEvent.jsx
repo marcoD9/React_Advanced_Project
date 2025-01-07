@@ -160,7 +160,22 @@ export const EditEvent = () => {
               />
             </FormControl>
           </SimpleGrid>
-
+          <FormControl>
+            <FormLabel htmlFor="location">
+              Location:{" "}
+              <Text as="span" fontWeight="thin" fontSize="md">
+                {event.location}
+              </Text>
+            </FormLabel>
+            <Input
+              placeholder="Edit location"
+              type="text"
+              id="location"
+              name="location"
+              value={eventData.location}
+              onChange={handleChange}
+            />
+          </FormControl>
           <FormControl>
             <FormLabel>Categories</FormLabel>
             <VStack align="start" spacing={1}>
