@@ -82,6 +82,8 @@ export const EventPage = () => {
         bgGradient="linear(to-l,  #FAF5FF,#FFFAF0)"
         borderRadius="lg"
         overflow="hidden"
+        minHeight="100vh" // To cover the vh
+        width="100vw" // To cover the vw
       >
         <Stack alignItems="center">
           <Flex
