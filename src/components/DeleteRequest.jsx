@@ -18,9 +18,12 @@ export const DeleteRequest = ({ eventId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const deleteEvent = async () => {
-    const promise = fetch(`http://localhost:3000/events/${eventId}`, {
-      method: "DELETE",
-    });
+    const promise = fetch(
+      `https://my-json-server.typicode.com/marcoD9/Database/events/${eventId}`,
+      {
+        method: "DELETE",
+      }
+    );
     toast.promise(promise, {
       loading: {
         title: "Deleting event...",

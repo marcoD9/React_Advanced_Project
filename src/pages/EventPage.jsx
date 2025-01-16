@@ -21,7 +21,9 @@ export const loader = async ({ params }) => {
   async function fetchCategories(ids) {
     try {
       const promises = ids.map(async (id) => {
-        const response = await fetch(`http://localhost:3000/categories/${id}`);
+        const response = await fetch(
+          `https://my-json-server.typicode.com/marcoD9/Database/categories/${id}`
+        );
         if (!response.ok) {
           throw new Error(`Failed to fetch category with id: ${id}`);
         }
@@ -37,7 +39,9 @@ export const loader = async ({ params }) => {
   // Fetch user data based on the event's createdBy property
   async function fetchUsersId(id) {
     try {
-      const response = await fetch(`http://localhost:3000/users/${id}`);
+      const response = await fetch(
+        `https://my-json-server.typicode.com/marcoD9/Database/users/${id}`
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch user with id: ${id}`);
       }
@@ -52,7 +56,7 @@ export const loader = async ({ params }) => {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/events/${params.eventId}`
+      `https://my-json-server.typicode.com/marcoD9/Database/events/${params.eventId}`
     );
     if (!response.ok) {
       throw new Error("Event not found");

@@ -21,8 +21,12 @@ import { format, parseISO } from "date-fns";
 
 export const loader = async () => {
   try {
-    const responseCategories = await fetch(`http://localhost:3000/categories`);
-    const responseEvents = await fetch("http://localhost:3000/events");
+    const responseCategories = await fetch(
+      `https://my-json-server.typicode.com/marcoD9/Database/categories`
+    );
+    const responseEvents = await fetch(
+      "https://my-json-server.typicode.com/marcoD9/Database/events"
+    );
 
     if (!responseCategories.ok) {
       throw new Error(

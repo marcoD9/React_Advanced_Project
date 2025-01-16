@@ -19,7 +19,7 @@ import { format, parseISO } from "date-fns";
 export const loader = async ({ params }) => {
   try {
     const response = await fetch(
-      `http://localhost:3000/events/${params.eventId}`
+      `https://my-json-server.typicode.com/marcoD9/Database/events/${params.eventId}`
     );
 
     const event = await response.json();
@@ -57,11 +57,14 @@ export const EditEvent = () => {
   };
 
   const editEvent = async () => {
-    const promise = fetch(`http://localhost:3000/events/${event.id}`, {
-      method: "PATCH",
-      body: JSON.stringify(eventData),
-      headers: { "Content-Type": "application/json;charset=utf-8" },
-    });
+    const promise = fetch(
+      `https://my-json-server.typicode.com/marcoD9/Database/events/${event.id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(eventData),
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+      }
+    );
 
     toast.promise(promise, {
       loading: {

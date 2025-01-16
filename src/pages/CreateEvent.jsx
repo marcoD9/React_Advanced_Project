@@ -57,11 +57,14 @@ export const CreateEvent = () => {
   };
 
   const createEvent = async () => {
-    const promise = fetch("http://localhost:3000/events", {
-      method: "POST",
-      body: JSON.stringify(eventData),
-      headers: { "Content-Type": "application/json;charset=utf-8" },
-    });
+    const promise = fetch(
+      "https://my-json-server.typicode.com/marcoD9/Database/events",
+      {
+        method: "POST",
+        body: JSON.stringify(eventData),
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+      }
+    );
 
     toast.promise(promise, {
       loading: {
