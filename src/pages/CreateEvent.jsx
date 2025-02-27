@@ -13,19 +13,41 @@ import {
   SimpleGrid,
   useToast,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLoaderData } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+export const loader = async () => {
+  try {
+    const responseCategories = await fetch(
+      "https://events-api-hqpz.onrender.com/categories"
+    );
+    if (!responseCategories.ok) {
+      throw new Error(
+        `Failed to fetch categories: ${responseCategories.statusText}`
+      );
+    }
+    const categories = await responseCategories.json();
+    console.log("Categories from loader:", categories);
+    return { categories };
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return { categories: [] };
+  }
+};
 
 export const CreateEvent = () => {
   const toast = useToast();
   const navigate = useNavigate();
+  const data = useLoaderData();
+  const categories = data?.categories || [];
+
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
     location: "",
     startTime: "",
     endTime: "",
-    categoryIds: [],
+    category: null,
     image: "",
   });
 
@@ -35,17 +57,20 @@ export const CreateEvent = () => {
   const startTimeError = !eventData.startTime;
   const endTimeError = !eventData.endTime;
   const imageError = !eventData.image;
-  const categoryError = eventData.categoryIds.length === 0;
+  const categoryError = !eventData.category;
 
-  // Function to handle checkboxes
-  const handleCategoryChange = (categoryId) => {
-    setEventData((prevData) => {
-      const { categoryIds } = prevData;
-      const updatedCategoryIds = categoryIds.includes(categoryId)
-        ? categoryIds.filter((id) => id !== categoryId) // Remove category if it is already there
-        : [...categoryIds, categoryId]; // Add category if it's not
-      return { ...prevData, categoryIds: updatedCategoryIds };
-    });
+  useEffect(() => {
+    setEventData((prevData) => ({
+      ...prevData,
+      category: null,
+    }));
+  }, []);
+
+  const handleCategoryChange = (category) => {
+    setEventData((prevData) => ({
+      ...prevData,
+      category: category,
+    }));
   };
 
   const handleChange = (e) => {
@@ -57,14 +82,11 @@ export const CreateEvent = () => {
   };
 
   const createEvent = async () => {
-    const promise = fetch(
-      "https://my-json-server.typicode.com/marcoD9/Database/events",
-      {
-        method: "POST",
-        body: JSON.stringify(eventData),
-        headers: { "Content-Type": "application/json;charset=utf-8" },
-      }
-    );
+    const promise = fetch("https://events-api-hqpz.onrender.com/events", {
+      method: "POST",
+      body: JSON.stringify(eventData),
+      headers: { "Content-Type": "application/json;charset=utf-8" },
+    });
 
     toast.promise(promise, {
       loading: {
@@ -91,7 +113,6 @@ export const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Check for errors using error variables
     if (
       titleError ||
       descriptionError ||
@@ -101,7 +122,7 @@ export const CreateEvent = () => {
       imageError ||
       categoryError
     ) {
-      return; // Prevent form submission if there are errors
+      return;
     }
     await createEvent();
   };
@@ -120,7 +141,7 @@ export const CreateEvent = () => {
               onChange={handleChange}
             />
             {!titleError ? (
-              <FormHelperText>Enter your event's title</FormHelperText>
+              <FormHelperText>Enter the title</FormHelperText>
             ) : (
               <FormErrorMessage>Title is required.</FormErrorMessage>
             )}
@@ -135,7 +156,7 @@ export const CreateEvent = () => {
               minH={8}
             />
             {!descriptionError ? (
-              <FormHelperText>Enter your event's description</FormHelperText>
+              <FormHelperText>Enter a description</FormHelperText>
             ) : (
               <FormErrorMessage>Description is required.</FormErrorMessage>
             )}
@@ -151,7 +172,7 @@ export const CreateEvent = () => {
                 onChange={handleChange}
               />{" "}
               {!startTimeError ? (
-                <FormHelperText>Enter your event's start time</FormHelperText>
+                <FormHelperText>Enter the start time</FormHelperText>
               ) : (
                 <FormErrorMessage>Date is required.</FormErrorMessage>
               )}
@@ -166,7 +187,7 @@ export const CreateEvent = () => {
                 onChange={handleChange}
               />
               {!endTimeError ? (
-                <FormHelperText>Enter your event's end time</FormHelperText>
+                <FormHelperText>Enter the end time</FormHelperText>
               ) : (
                 <FormErrorMessage>Date is required.</FormErrorMessage>
               )}
@@ -182,7 +203,7 @@ export const CreateEvent = () => {
               onChange={handleChange}
             />
             {!locationError ? (
-              <FormHelperText>Enter your event's location</FormHelperText>
+              <FormHelperText>Enter the location</FormHelperText>
             ) : (
               <FormErrorMessage>Location is required.</FormErrorMessage>
             )}
@@ -190,24 +211,23 @@ export const CreateEvent = () => {
           <FormControl isInvalid={categoryError}>
             <FormLabel>Categories</FormLabel>
             <VStack align="start">
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(1)}
-                onChange={() => handleCategoryChange(1)}
-              >
-                Sports
-              </Checkbox>
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(2)}
-                onChange={() => handleCategoryChange(2)}
-              >
-                Games
-              </Checkbox>
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(3)}
-                onChange={() => handleCategoryChange(3)}
-              >
-                Relaxation
-              </Checkbox>
+              {categories.map((category) => {
+                const capitalizedName =
+                  category.name.charAt(0).toUpperCase() +
+                  category.name.slice(1);
+                return (
+                  <Checkbox
+                    key={category.id}
+                    isChecked={
+                      eventData.categories &&
+                      eventData.categories.some((c) => c.name === category.name)
+                    }
+                    onChange={() => handleCategoryChange(category)}
+                  >
+                    {capitalizedName}
+                  </Checkbox>
+                );
+              })}
             </VStack>
             {categoryError && (
               <FormErrorMessage>Choose one or more categories</FormErrorMessage>
@@ -241,7 +261,7 @@ export const CreateEvent = () => {
               </Box>
             )}
             {!imageError ? (
-              <FormHelperText>Enter your event's image</FormHelperText>
+              <FormHelperText>Enter an image</FormHelperText>
             ) : (
               <FormErrorMessage>Image is required.</FormErrorMessage>
             )}

@@ -13,37 +13,48 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 
 export const loader = async ({ params }) => {
   try {
-    const response = await fetch(
-      `https://my-json-server.typicode.com/marcoD9/Database/events/${params.eventId}`
+    const responseEvent = await fetch(
+      `https://events-api-hqpz.onrender.com/events/${params.eventId}`
+    );
+    const responseCategories = await fetch(
+      `https://events-api-hqpz.onrender.com/categories`
     );
 
-    const event = await response.json();
+    const event = await responseEvent.json();
+    const categories = await responseCategories.json();
 
-    return { event };
+    return { event, categories };
   } catch (error) {
-    console.error("Error fetching event:", error);
+    console.error("Error fetching data:", error);
   }
 };
 
 export const EditEvent = () => {
-  const { event } = useLoaderData();
+  const { event, categories } = useLoaderData();
   const [eventData, setEventData] = useState({ ...event });
   const toast = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setEventData({ ...event });
+  }, [event]);
+
   // Handle checkboxes
-  const handleCategoryChange = (categoryId) => {
+  const handleCategoryChange = (category) => {
     setEventData((prevData) => {
-      const { categoryIds } = prevData;
-      const updatedCategoryIds = categoryIds.includes(categoryId)
-        ? categoryIds.filter((id) => id !== categoryId)
-        : [...categoryIds, categoryId];
-      return { ...prevData, categoryIds: updatedCategoryIds };
+      const { categories: currentCategories } = prevData;
+      const categoryExists = currentCategories.some(
+        (c) => c.name === category.name
+      );
+      const updatedCategories = categoryExists
+        ? currentCategories.filter((c) => c.name !== category.name)
+        : [...currentCategories, category];
+      return { ...prevData, categories: updatedCategories };
     });
   };
 
@@ -58,7 +69,7 @@ export const EditEvent = () => {
 
   const editEvent = async () => {
     const promise = fetch(
-      `https://my-json-server.typicode.com/marcoD9/Database/events/${event.id}`,
+      `https://events-api-hqpz.onrender.com/events/${event.id}`,
       {
         method: "PATCH",
         body: JSON.stringify(eventData),
@@ -182,27 +193,24 @@ export const EditEvent = () => {
           <FormControl>
             <FormLabel>Categories</FormLabel>
             <VStack align="start" spacing={1}>
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(1)}
-                onChange={() => handleCategoryChange(1)}
-              >
-                Sports
-              </Checkbox>
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(2)}
-                onChange={() => handleCategoryChange(2)}
-              >
-                Games
-              </Checkbox>
-              <Checkbox
-                isChecked={eventData.categoryIds.includes(3)}
-                onChange={() => handleCategoryChange(3)}
-              >
-                Relaxation
-              </Checkbox>
+              {categories.map((category) => {
+                const capitalizedName =
+                  category.name.charAt(0).toUpperCase() +
+                  category.name.slice(1);
+                return (
+                  <Checkbox
+                    key={category.id}
+                    isChecked={eventData.categories.some(
+                      (c) => c.name === category.name
+                    )}
+                    onChange={() => handleCategoryChange(category)}
+                  >
+                    {capitalizedName}
+                  </Checkbox>
+                );
+              })}
             </VStack>
           </FormControl>
-
           <FormControl>
             <FormLabel htmlFor="image">Image</FormLabel>
             <Input
