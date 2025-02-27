@@ -19,7 +19,7 @@ export const DeleteRequest = ({ eventId }) => {
 
   const deleteEvent = async () => {
     const promise = fetch(
-      `https://my-json-server.typicode.com/marcoD9/Database/events/${eventId}`,
+      `https://events-api-hqpz.onrender.com/events/${eventId}`,
       {
         method: "DELETE",
       }
