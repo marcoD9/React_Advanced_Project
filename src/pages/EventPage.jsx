@@ -16,31 +16,10 @@ import { format, parseISO } from "date-fns";
 import { DeleteRequest } from "../components/DeleteRequest";
 
 export const loader = async ({ params }) => {
-  //-------------------------------------------------------------------------------//
-  // Fetch categories data based on the event's categoryIds
-  async function fetchCategories(ids) {
-    try {
-      const promises = ids.map(async (id) => {
-        const response = await fetch(
-          `https://my-json-server.typicode.com/marcoD9/Database/categories/${id}`
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch category with id: ${id}`);
-        }
-        return await response.json();
-      });
-      return await Promise.all(promises);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      throw error;
-    }
-  }
-  //-------------------------------------------------------------------------------//
-  // Fetch user data based on the event's createdBy property
   async function fetchUsersId(id) {
     try {
       const response = await fetch(
-        `https://my-json-server.typicode.com/marcoD9/Database/users/${id}`
+        `https://events-api-hqpz.onrender.com/users/${id}`
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch user with id: ${id}`);
@@ -52,33 +31,31 @@ export const loader = async ({ params }) => {
     }
   }
 
-  //-------------------------------------------------------------------------------//
-
   try {
     const response = await fetch(
-      `https://my-json-server.typicode.com/marcoD9/Database/events/${params.eventId}`
+      `https://events-api-hqpz.onrender.com/events/${params.eventId}`
     );
     if (!response.ok) {
       throw new Error("Event not found");
     }
     const event = await response.json();
-    const [categories] = await Promise.all([
-      fetchCategories(event.categoryIds),
-    ]);
-    const user = event.createdBy ? await fetchUsersId(event.createdBy) : null; //Check if user exists before fetching
-    return { event, user, categories };
+    let user = null;
+    if (event.userId) {
+      user = await fetchUsersId(event.userId);
+    }
+    return { event, user };
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
 
 export const EventPage = () => {
-  const { event, user, categories } = useLoaderData();
-  //Using useBreakpointValue outside of the loop
+  const { event, user } = useLoaderData();
   const imageHeight = useBreakpointValue({ base: "200px", md: "300px" });
   const imageWidth = useBreakpointValue({ base: "100%", md: "300px" });
   const headingSize = useBreakpointValue({ base: "md", md: "lg" });
   const textSize = useBreakpointValue({ base: "sm", md: "md" });
+
   return (
     <>
       <Box
@@ -86,8 +63,8 @@ export const EventPage = () => {
         bgGradient="linear(to-l,  #FAF5FF,#FFFAF0)"
         borderRadius="lg"
         overflow="hidden"
-        minHeight="100vh" // To cover the vh
-        width="100vw" // To cover the vw
+        minHeight="100vh"
+        width="100vw"
       >
         <Stack alignItems="center">
           <Flex
@@ -134,11 +111,11 @@ export const EventPage = () => {
                     ) : (
                       <Text>Loading...</Text>
                     )}
-                    {categories.length > 0 && (
+                    {event.categories && event.categories.length > 0 && (
                       <>
                         <Text>Categories: </Text>
                         <Flex flexDirection="row" wrap="wrap" gap={2}>
-                          {categories.map((category) => (
+                          {event.categories.map((category) => (
                             <Tag
                               fontSize="l"
                               p={2}
@@ -174,7 +151,7 @@ export const EventPage = () => {
                     <Flex alignItems="center" gap={4}>
                       <Image
                         borderRadius="full"
-                        boxSize="50px"
+                        boxSize="100px"
                         objectFit="cover"
                         src={user.image}
                         alt={`Profile picture of the user: ${user.name}`}
