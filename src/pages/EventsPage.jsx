@@ -22,10 +22,10 @@ import { format, parseISO } from "date-fns";
 export const loader = async () => {
   try {
     const responseCategories = await fetch(
-      `https://my-json-server.typicode.com/marcoD9/Database/categories`
+      `https://events-api-hqpz.onrender.com/categories`
     );
     const responseEvents = await fetch(
-      "https://my-json-server.typicode.com/marcoD9/Database/events"
+      "https://events-api-hqpz.onrender.com/events"
     );
 
     if (!responseCategories.ok) {
@@ -51,32 +51,37 @@ export const EventsPage = () => {
   const { events, categories, error } = useLoaderData();
   const [searchField, setSearchField] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [filteredEvents, setFilteredEvents] = useState([]); // Combined filtered events
+  const [filteredEvents, setFilteredEvents] = useState(events);
 
-  //Using useBreakpointValue outside of the loop
+  // Using useBreakpointValue outside of the loop
   const imageHeight = useBreakpointValue({ base: "200px", md: "300px" });
   const imageWidth = useBreakpointValue({ base: "100%", md: "300px" });
   const headingSize = useBreakpointValue({ base: "md", md: "lg" });
   const textSize = useBreakpointValue({ base: "sm", md: "md" });
 
-  // Filter based on search field
+  // Combined filter for search field and category
   useEffect(() => {
-    const filteredByName = events.filter((event) =>
-      event.title.toLowerCase().includes(searchField.toLowerCase())
-    );
-    setFilteredEvents(filteredByName);
-  }, [searchField, events]); //executed on search field change
+    let filtered = events;
 
-  // Filter based on category
-  useEffect(() => {
-    const filteredByCategory = events.filter((event) => {
-      if (selectedCategory == "") {
-        return true; // No category filter applied
-      }
-      return event.categoryIds.includes(parseInt(selectedCategory));
-    });
-    setFilteredEvents(filteredByCategory);
-  }, [selectedCategory, events]); //executed on category change
+    // Filter by search field
+    if (searchField) {
+      filtered = filtered.filter((event) =>
+        event.title.toLowerCase().includes(searchField.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (selectedCategory && selectedCategory !== "All") {
+      filtered = filtered.filter((event) =>
+        event.categories.some(
+          (category) =>
+            category.name.toLowerCase() === selectedCategory.toLowerCase()
+        )
+      );
+    }
+
+    setFilteredEvents(filtered);
+  }, [searchField, selectedCategory, events]);
 
   // Handle change in the text input
   const handleChange = (event) => {
@@ -85,14 +90,7 @@ export const EventsPage = () => {
 
   // Handle change in the category select
   const handleCategoryChange = (event) => {
-    setSelectedCategory(Number(event.target.value));
-  };
-
-  //Check matching Ids between event's categoryIds and categories ids and return name
-  const findMatchingCategoryNames = (eventIds) => {
-    return categories
-      .filter((category) => eventIds.includes(category.id))
-      .map((category) => category.name);
+    setSelectedCategory(event.target.value);
   };
 
   return (
@@ -108,8 +106,8 @@ export const EventsPage = () => {
           bgGradient="linear(to-l,  #FAF5FF,#FFFAF0)"
           borderRadius="lg"
           overflow="hidden"
-          minHeight="100vh" // To cover the vh
-          width="100vw" // To cover the vw
+          minHeight="100vh"
+          width="100vw"
         >
           <Stack alignItems="center" textAlign="center" spacing={8}>
             <Flex flexDirection="column" alignItems="center">
@@ -132,10 +130,13 @@ export const EventsPage = () => {
                 onChange={handleCategoryChange}
                 w={{ base: "80vw", md: "40vw" }}
               >
-                <option value="">All</option>
-                <option value="1">Sports</option>
-                <option value="2">Games</option>
-                <option value="3">Relaxation</option>
+                <option value="All">All</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name.charAt(0).toUpperCase() +
+                      category.name.slice(1)}
+                  </option>
+                ))}
               </Select>
             </Flex>
           </Stack>
@@ -159,11 +160,10 @@ export const EventsPage = () => {
                   cursor="pointer"
                   _hover={{ transform: "scale(1.09)" }}
                 >
-                  {" "}
                   <Link to={`/event/${event.id}`}>
                     <CardBody>
                       <Flex
-                        flexDirection={{ base: "column", md: "row" }}
+                        flexDirection={{ base: "column", lg: "row" }}
                         gap={6}
                         alignItems="center"
                       >
@@ -193,13 +193,11 @@ export const EventsPage = () => {
                           ) : (
                             <Text>Loading...</Text>
                           )}
-                          {categories.length > 0 && (
+                          {categories.length > 0 ? (
                             <>
                               <Text>Categories:</Text>
                               <Flex flexDirection="row" wrap="wrap" gap={2}>
-                                {findMatchingCategoryNames(
-                                  event.categoryIds
-                                ).map((categoryName) => (
+                                {event.categories.map((category) => (
                                   <Tag
                                     fontSize="l"
                                     p={2}
@@ -207,14 +205,16 @@ export const EventsPage = () => {
                                     variant="solid"
                                     bgColor="yellow.300"
                                     color="black"
-                                    key={categoryName}
+                                    key={category.id}
                                   >
-                                    {categoryName[0].toUpperCase() +
-                                      categoryName.slice(1).toLowerCase()}
+                                    {category.name[0].toUpperCase() +
+                                      category.name.slice(1).toLowerCase()}
                                   </Tag>
                                 ))}
                               </Flex>
                             </>
+                          ) : (
+                            <Text>Loading...</Text>
                           )}
                         </Stack>
                       </Flex>
