@@ -106,7 +106,6 @@ export const EventsPage = () => {
           bgGradient="linear(to-l,  #FAF5FF,#FFFAF0)"
           borderRadius="lg"
           overflow="hidden"
-          overflowX="hidden"
           minHeight="100vh"
           width="100vw"
         >
