@@ -42,7 +42,12 @@ export const DeleteRequest = ({ eventId }) => {
         },
         error: {
           title: "Error deleting event",
-          description: "Something went wrong, please try again",
+          description: (error) => {
+            if (error instanceof Error) {
+              return error.message; // Use the error message from the fetch
+            }
+            return "Something went wrong, please try again";
+          },
         },
       });
 
@@ -51,13 +56,8 @@ export const DeleteRequest = ({ eventId }) => {
       onClose();
       navigate("/");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again later.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      // No need to show another toast here, toast.promise already handles errors.
+      console.error("Unexpected error:", error);
     }
   };
   const handleDelete = async (e) => {
