@@ -18,34 +18,49 @@ export const DeleteRequest = ({ eventId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const deleteEvent = async () => {
-    const promise = fetch(
-      `https://events-api-hqpz.onrender.com/events/${eventId}`,
-      {
-        method: "DELETE",
-      }
-    );
-    toast.promise(promise, {
-      loading: {
-        title: "Deleting event...",
-        description: "Please wait while we delete the event",
-      },
-      success: {
-        title: "Event deleted",
-        description: "The event has been successfully deleted",
-      },
-      error: {
-        title: "Error deleting event",
-        description: "Something went wrong, please try again",
-      },
-    });
+    try {
+      const promise = fetch(
+        `https://events-api-hqpz.onrender.com/events/${eventId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-    const response = await promise;
-    if (response.ok) {
-      onClose(); // Close the modal after successful deletion
-      navigate("/"); // Redirect to events list on success
+      toast.promise(promise, {
+        loading: {
+          title: "Deleting event...",
+          description: "Please wait while we delete the event",
+        },
+        success: {
+          title: "Event deleted",
+          description: "The event has been successfully deleted",
+        },
+        error: {
+          title: "Error deleting event",
+          description: "Something went wrong, please try again",
+        },
+      });
+
+      const response = await promise;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      onClose();
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      toast({
+        title: "Error",
+        description:
+          error.message ||
+          "An unexpected error occurred. Please try again later.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
-
   const handleDelete = async (e) => {
     e.preventDefault();
     await deleteEvent();
