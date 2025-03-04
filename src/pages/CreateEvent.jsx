@@ -82,32 +82,52 @@ export const CreateEvent = () => {
   };
 
   const createEvent = async () => {
-    const promise = fetch("https://events-api-hqpz.onrender.com/events", {
-      method: "POST",
-      body: JSON.stringify(eventData),
-      headers: { "Content-Type": "application/json;charset=utf-8" },
-    });
+    try {
+      const response = await fetch(
+        "https://events-api-hqpz.onrender.com/events",
+        {
+          method: "POST",
+          body: JSON.stringify(eventData),
+          headers: { "Content-Type": "application/json;charset=utf-8" },
+        }
+      );
 
-    toast.promise(promise, {
-      loading: {
-        title: "Saving changes...",
-        description: "Please wait while we create the event",
-      },
-      success: {
-        title: "Event created",
-        description: "The event has been successfully created",
-      },
-      error: {
-        title: "Error creating event",
-        description: "Something went wrong, please try again",
-      },
-    });
+      if (!response.ok) {
+        toast({
+          title: "Failed to create event",
+          description: "The event could not be created. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
 
-    const response = await promise;
+      toast.promise(Promise.resolve(response), {
+        loading: {
+          title: "Saving changes...",
+          description: "Please wait while we create the event",
+        },
+        success: {
+          title: "Event created",
+          description: "The event has been successfully created",
+        },
+        error: {
+          title: "Error creating event",
+          description: "Something went wrong, please try again",
+        },
+      });
 
-    if (response.ok) {
       const newEvent = await response.json();
       navigate(`/event/${newEvent.id}`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again later.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
