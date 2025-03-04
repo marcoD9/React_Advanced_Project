@@ -68,34 +68,51 @@ export const EditEvent = () => {
   };
 
   const editEvent = async () => {
-    const promise = fetch(
-      `https://events-api-hqpz.onrender.com/events/${event.id}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(eventData),
-        headers: { "Content-Type": "application/json;charset=utf-8" },
+    try {
+      const response = await fetch(
+        `https://events-api-hqpz.onrender.com/events/${event.id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(eventData),
+          headers: { "Content-Type": "application/json;charset=utf-8" },
+        }
+      );
+
+      if (!response.ok) {
+        toast({
+          title: "Failed to update event",
+          description: "The event could not be updated. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
       }
-    );
 
-    toast.promise(promise, {
-      loading: {
-        title: "Saving changes...",
-        description: "Please wait while we update the event",
-      },
-      success: {
-        title: "Event updated",
-        description: "The event has been successfully updated",
-      },
-      error: {
-        title: "Error updating event",
-        description: "Something went wrong, please try again",
-      },
-    });
+      toast.promise(Promise.resolve(response), {
+        loading: {
+          title: "Saving changes...",
+          description: "Please wait while we update the event",
+        },
+        success: {
+          title: "Event updated",
+          description: "The event has been successfully updated",
+        },
+        error: {
+          title: "Error updating event",
+          description: "Something went wrong, please try again",
+        },
+      });
 
-    const response = await promise;
-
-    if (response.ok) {
       navigate(`/event/${event.id}`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again later.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
