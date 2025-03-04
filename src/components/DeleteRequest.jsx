@@ -24,7 +24,12 @@ export const DeleteRequest = ({ eventId }) => {
         {
           method: "DELETE",
         }
-      );
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response;
+      });
 
       toast.promise(promise, {
         loading: {
@@ -41,10 +46,7 @@ export const DeleteRequest = ({ eventId }) => {
         },
       });
 
-      const response = await promise;
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      await promise; // just wait the promise resolution
 
       onClose();
       navigate("/");
