@@ -51,12 +51,9 @@ export const DeleteRequest = ({ eventId }) => {
       onClose();
       navigate("/");
     } catch (error) {
-      console.error("Error deleting event:", error);
       toast({
         title: "Error",
-        description:
-          error.message ||
-          "An unexpected error occurred. Please try again later.",
+        description: "An unexpected error occurred. Please try again later.",
         status: "error",
         duration: 5000,
         isClosable: true,
